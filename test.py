@@ -30,8 +30,8 @@ class APICreateTest(unittest.TestCase):
                 'color': TEST_DATA["color"],
                 'created_at': f'{response["created_at"]}',
                 'id': response["id"],
-                'lat': TEST_DATA["lat"], 
-                'lon': TEST_DATA["lon"], 
+                'lat': round(TEST_DATA["lat"],6), 
+                'lon': round(TEST_DATA["lon"],6), 
                 'title': f'{TEST_DATA["title"]}'
             })
 
@@ -43,8 +43,13 @@ class APICreateTest(unittest.TestCase):
         """
         TEST_DATA = {'title':23.2, 'lat':0.0001, 'lon':0.0001, 'color': None}
 
-        response = self.create(TEST_DATA).json()
-
+        response = self.create(TEST_DATA)
+        
+        try:
+            response = response.json()
+        except:
+            self.fail(f'{response.content}')
+        
         try:
             self.comparison(response, TEST_DATA)
         except KeyError:
@@ -55,10 +60,15 @@ class APICreateTest(unittest.TestCase):
         """
         Тестирование достоверности значений для координат
         """
-        TEST_DATA = {'title':'Home, sweet home', 'lat':0.022000000001, 'lon':66666661, 'color': None }
+        TEST_DATA = {'title':'Home, sweet home', 'lat':0.022000000001, 'lon':0.02200000000000000000001, 'color': None}
 
-        response = self.create(TEST_DATA).json()
-
+        response = self.create(TEST_DATA)
+        
+        try:
+            response = response.json()
+        except:
+            self.fail(f'{response.content}')
+ 
         try:
             self.comparison(response, TEST_DATA)
         except KeyError:
@@ -72,8 +82,13 @@ class APICreateTest(unittest.TestCase):
         """
         TEST_DATA = {'title':'Home, sweet home', 'lat':0, 'lon':'666', 'color': None}
 
-        response = self.create(TEST_DATA).json()
-
+        response = self.create(TEST_DATA)
+        
+        try:
+            response = response.json()
+        except:
+            self.fail(f'{response.content}')
+ 
         try:
             self.comparison(response, TEST_DATA)
         except KeyError:
@@ -85,9 +100,14 @@ class APICreateTest(unittest.TestCase):
         """
         Тестирование опечатки в поле color
         """     
-        TEST_DATA = {'title':'Home, sweet home', 'lat':0.0001, 'lon':0.1, 'color':'R3D' }
+        TEST_DATA = {'title':'Home, sweet home', 'lat':0.0001, 'lon':0.1, 'color':'R3D'}
         
-        response = self.create(TEST_DATA).json()
+        response = self.create(TEST_DATA)
+        
+        try:
+            response = response.json()
+        except:
+            self.fail(f'{response.content}')
 
         try:
             self.comparison(response, TEST_DATA)
@@ -99,14 +119,60 @@ class APICreateTest(unittest.TestCase):
         """
         Тестирование иного типа данных для поля color
         """
-        TEST_DATA = {'title':'Home, sweet home', 'lat':0.0001, 'lon':0.1, 'color':1 }
+        TEST_DATA = {'title':'Home, sweet home', 'lat':0.0001, 'lon':0.1, 'color':1}
 
-        response = self.create(TEST_DATA).json()
+        response = self.create(TEST_DATA)
         
+        try:
+            response = response.json()
+        except:
+            self.fail(f'{response.content}')
+
         try:
             self.comparison(response, TEST_DATA)
         except KeyError:
             self.fail(f'Unable to create favourite place with color = {TEST_DATA["color"]} type: {type(TEST_DATA["color"])} \n{response["error"]["message"]}') 
+
+
+    def test_min_boundary_values(self):
+        """
+        Тестирование минимальных граничных значений
+        """
+        TEST_DATA = {'title':'Home, sweet home', 'lat':0, 'lon':0, 'color': None}
+        
+        response = self.create(TEST_DATA)
+        
+        try:
+            response = response.json()
+        except:
+            self.fail(f'{response.content}')
+                   
+        try:
+            self.comparison(response, TEST_DATA)
+        except KeyError:
+            self.fail(f'Unable to create favourite place with lat = {TEST_DATA["lat"]} type: {type(TEST_DATA["lat"])} and with lon = {TEST_DATA["lon"]} type: {type(TEST_DATA["lon"])} \
+                \n{response["error"]["message"]}')
+    
+
+    def test_max_boundary_values(self):
+        """
+        Тестирование максимальных граничных значений
+        """
+        TEST_DATA = {'title':'Home, sweet home', 'lat':90, 'lon':180, 'color': None}
+        
+        response = self.create(TEST_DATA)
+        
+        try:
+            response = response.json()
+        except:
+            self.fail(f'{response.content}')
+
+        try:
+            self.comparison(response, TEST_DATA)
+        except KeyError:
+            self.fail(f'Unable to create favourite place with lat = {TEST_DATA["lat"]} type: {type(TEST_DATA["lat"])} and with lon = {TEST_DATA["lon"]} type: {type(TEST_DATA["lon"])} \
+                \n{response["error"]["message"]}')
+
 
 
 
